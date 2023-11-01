@@ -1,3 +1,4 @@
+import { StackScreenProps } from '@react-navigation/stack';
 import React, {useState} from 'react';
 import {
   View,
@@ -9,7 +10,9 @@ import {
 import {Text} from 'react-native-elements';
 import Icon from 'react-native-vector-icons/FontAwesome';
 
-export const LoginScreen = () => {
+interface Props extends StackScreenProps<any, any> { };
+
+export const LoginScreen = ({ navigation }: Props) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
@@ -18,7 +21,9 @@ export const LoginScreen = () => {
     console.log(`Usuario: ${username}, Contraseña: ${password}`);
   };
 
-  const handleSignUp = () => {};
+  const handleSignUp = () => {
+    navigation.navigate('SignUpScreen')
+  };
 
   return (
     <View style={styles.container}>
