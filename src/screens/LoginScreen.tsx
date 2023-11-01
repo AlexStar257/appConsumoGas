@@ -19,10 +19,15 @@ export const LoginScreen = ({ navigation }: Props) => {
 
   const handleLogin = () => {
     console.log(`Usuario: ${username}, Contraseña: ${password}`);
+    navigation.navigate('Readings')
   };
 
   const handleSignUp = () => {
     navigation.navigate('SignUpScreen')
+  };
+
+  const handleForgot = () => {
+    navigation.navigate('ResetPasswordScreen')
   };
 
   return (
@@ -66,11 +71,11 @@ export const LoginScreen = ({ navigation }: Props) => {
         </View>
       </View>
 
-      <TouchableOpacity style={styles.botton}>
+      <TouchableOpacity style={styles.botton} onPress={handleLogin}>
         <Text style={styles.bottonText}>Sign in</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity onPress={handleLogin}>
+      <TouchableOpacity onPress={handleForgot}>
         <Text style={{color: 'gray', bottom: 10, top: 1, fontWeight: 'bold'}}>
           Forgot Password?
         </Text>
