@@ -13,12 +13,12 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 interface Props extends StackScreenProps<any, any> { };
 
 export const LoginScreen = ({ navigation }: Props) => {
-  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
 
   const handleLogin = () => {
-    console.log(`Usuario: ${username}, Contraseña: ${password}`);
+    console.log(`Email: ${email}, Contraseña: ${password}`);
     navigation.navigate('Readings')
   };
 
@@ -33,30 +33,30 @@ export const LoginScreen = ({ navigation }: Props) => {
   return (
     <View style={styles.container}>
       <Image
-        source={require('../../img/gaspasa_logo.png')}
+        source={require('../../img/sersi_logo.png')}
         style={styles.imagen}
       />
 
-      <Text style={styles.titulo}>Sign In</Text>
+      <Text style={styles.titulo}>Iniciar Sesión</Text>
 
       <View style={styles.inputContainer}>
-        <Text style={styles.subTitulo}>Username</Text>
+        <Text style={styles.subTitulo}>Correo electrónico</Text>
         <TextInput
           style={styles.input}
-          onChangeText={setUsername}
-          value={username}
-          placeholder="Your Username"
+          onChangeText={setEmail}
+          value={email}
+          placeholder="Introduzca su correo electrónico"
         />
       </View>
 
       <View style={styles.inputContainer}>
-        <Text style={styles.subTitulo}>Password</Text>
+        <Text style={styles.subTitulo}>Contraseña</Text>
         <View style={styles.row}>
           <TextInput
             style={styles.input}
             onChangeText={setPassword}
             value={password}
-            placeholder=" Your Password"
+            placeholder="Introduzca su contraseña"
             secureTextEntry
           />
           <TouchableOpacity
@@ -72,17 +72,17 @@ export const LoginScreen = ({ navigation }: Props) => {
       </View>
 
       <TouchableOpacity style={styles.botton} onPress={handleLogin}>
-        <Text style={styles.bottonText}>Sign in</Text>
+        <Text style={styles.bottonText}>Entrar</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity onPress={handleForgot}>
+      {/* <TouchableOpacity onPress={handleForgot}>
         <Text style={{color: 'gray', bottom: 10, top: 1, fontWeight: 'bold'}}>
           Forgot Password?
         </Text>
-      </TouchableOpacity>
-      <TouchableOpacity onPress={handleSignUp}>
+      </TouchableOpacity> */}
+      {/* <TouchableOpacity onPress={handleSignUp}>
         <Text style={styles.signUpTexto}>Sign Up</Text>
-      </TouchableOpacity>
+      </TouchableOpacity> */}
     </View>
   );
 };
@@ -94,8 +94,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   imagen: {
-    width: 130,
-    height: 130,
+    width: 250,
+    height: 75,
     top: -120,
     resizeMode: 'stretch',
   },
@@ -107,31 +107,31 @@ const styles = StyleSheet.create({
     top: -90,
     alignSelf: 'flex-start',
     left: 60,
-    color: '#3d8af7',
+    color: 'black',
   },
   inputContainer: {
     alignSelf: 'flex-start',
     left: 60,
-    top: -50,
-    marginBottom: 20,
+    top: -60,
+    marginBottom: 45,
     width: '85%',
   },
   subTitulo: {
     fontSize: 15,
     fontWeight: 'bold',
     fontFamily: 'Asap',
-    color: '#ff6624',
+    color: '#DF2828',
   },
   botton: {
     width: '65%',
-    height: 40,
+    height: 50,
     borderRadius: 8,
-    top: -25,
-    backgroundColor: '#3d8af7',
+    top: -50,
+    backgroundColor: '#DF2828',
   },
   bottonText: {
-    fontSize: 17,
-    top: 7,
+    fontSize: 20,
+    top: 10,
     fontWeight: 'bold',
     alignSelf: 'center',
     color: 'white',
@@ -142,6 +142,7 @@ const styles = StyleSheet.create({
     width: '78%',
     borderBottomColor: 'black',
     borderColor: 'gray',
+    top: 5,
   },
   signUpTexto: {
     fontSize: 15,

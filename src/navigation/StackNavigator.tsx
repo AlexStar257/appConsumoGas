@@ -8,7 +8,7 @@ const Stack = createStackNavigator();
 export const StackNavigator = () => {
   return (
     <Stack.Navigator
-      // initialRouteName='Page1Screen'
+      initialRouteName='LoginScreen'
       screenOptions={{
         headerStyle: {
           elevation: 0,
@@ -17,8 +17,10 @@ export const StackNavigator = () => {
         cardStyle: {
           backgroundColor: 'white',
         },
-      }}>
-      <Stack.Screen name="LoginScreen" options={{ title:"Log in" }} component={LoginScreen} />
+        title: '',
+      }}
+      >
+      <Stack.Screen name="LoginScreen" component={LoginScreen}  />
       <Stack.Screen name="SignUpScreen" options={{ title:"Sign Up" }} component={SignUpScreen} />
       <Stack.Screen name="ResetPasswordScreen" options={{ title:"Reset Password" }} component={ResetPasswordScreen} />
       <Stack.Screen name="Readings" options={{ title:"Readings" }} component={Readings} />
