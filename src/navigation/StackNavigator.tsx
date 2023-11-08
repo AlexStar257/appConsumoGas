@@ -27,3 +27,4 @@ export const StackNavigator = () => {
     </Stack.Navigator>
   );
 };
+
