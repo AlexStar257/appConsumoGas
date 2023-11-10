@@ -1,30 +1,31 @@
-import { StackScreenProps } from '@react-navigation/stack';
+import {StackScreenProps} from '@react-navigation/stack';
 import React, {useEffect, useState} from 'react';
 import {
   View,
   TextInput,
   Image,
   StyleSheet,
+  Alert,
   TouchableOpacity,
 } from 'react-native';
 import {Text} from 'react-native-elements';
 import Icon from 'react-native-vector-icons/FontAwesome';
-import  Orientation from 'react-native-orientation-locker';
+import Orientation from 'react-native-orientation-locker';
+import {
+  widthPercentageToDP as wp,
+  heightPercentageToDP as hp,
+} from 'react-native-responsive-screen';
 
-interface Props extends StackScreenProps<any, any> { };
+interface Props extends StackScreenProps<any, any> {}
 
-export const LoginScreen = ({ navigation }: Props) => {
-//Hacer que la pantalle no se pueda utilizar en horizontal
+export const LoginScreen = ({navigation}: Props) => {
+    //Hacer que la pantalle no se pueda utilizar en horizontal
   useEffect(() => {
-    // Bloquear la orientación en retrato
     Orientation.lockToPortrait();
-  
-    // Asegúrate de desbloquear la orientación cuando la pantalla se desmonte
     return () => {
-      Orientation.unlockAllOrientations();
+    Orientation.unlockAllOrientations();
     };
   }, []);
-  
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -32,12 +33,14 @@ export const LoginScreen = ({ navigation }: Props) => {
 
   const handleLogin = () => {
     console.log(`Email: ${email}, Contraseña: ${password}`);
-    navigation.navigate('Readings')
-  };
 
-  // const handleSignUp = () => {
-  //   navigation.navigate('SignUpScreen')
-  // };
+    if (email === '' || password === '') {
+      Alert.alert('Por favor, introduzca su correo electrónico y contraseña');
+      return;
+    }
+
+    navigation.navigate('Readings');
+  };
 
   // const handleForgot = () => {
   //   navigation.navigate('ResetPasswordScreen')
@@ -52,6 +55,7 @@ export const LoginScreen = ({ navigation }: Props) => {
 
       <Text style={styles.titulo}>Iniciar Sesión</Text>
 
+      {/* Inputs correo y contraseña */}
       <View style={styles.inputContainer}>
         <Text style={styles.subTitulo}>Correo electrónico</Text>
         <TextInput
@@ -59,6 +63,7 @@ export const LoginScreen = ({ navigation }: Props) => {
           onChangeText={setEmail}
           value={email}
           placeholder="Introduzca su correo electrónico"
+          placeholderTextColor={'gray'}
         />
       </View>
 
@@ -70,6 +75,7 @@ export const LoginScreen = ({ navigation }: Props) => {
             onChangeText={setPassword}
             value={password}
             placeholder="Introduzca su contraseña"
+            placeholderTextColor={'gray'}
             secureTextEntry={isPasswordVisible}
           />
           <TouchableOpacity
@@ -78,12 +84,13 @@ export const LoginScreen = ({ navigation }: Props) => {
               name={isPasswordVisible ? 'eye' : 'eye-slash'}
               size={30}
               color="gray"
-              style={{ top: 5 , left:10}}
+              style={{top: 5, left: 10}}
             />
           </TouchableOpacity>
         </View>
       </View>
 
+      {/* Boton de entrar */}
       <TouchableOpacity style={styles.botton} onPress={handleLogin}>
         <Text style={styles.bottonText}>Entrar</Text>
       </TouchableOpacity>
@@ -93,23 +100,22 @@ export const LoginScreen = ({ navigation }: Props) => {
           Forgot Password?
         </Text>
       </TouchableOpacity> */}
-      {/* <TouchableOpacity onPress={handleSignUp}>
-        <Text style={styles.signUpTexto}>Sign Up</Text>
-      </TouchableOpacity> */}
     </View>
   );
 };
 
+// Estilos
 const styles = StyleSheet.create({
   container: {
+    top: hp('5%'),
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
   },
   imagen: {
-    width: 250,
-    height: 75,
-    top: -120,
+    width: wp('60%'),
+    height: hp('10%'),
+    top: hp('-15%'),
     resizeMode: 'stretch',
   },
   titulo: {
@@ -117,15 +123,15 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     fontFamily: 'QuickSand',
     marginBottom: 16,
-    top: -80,
+    top: hp('-8%'),
     alignSelf: 'flex-start',
     left: 40,
     color: 'black',
   },
   inputContainer: {
     alignSelf: 'flex-start',
-    left: 40,
-    top: -60,
+    left: wp('10%'),
+    top: hp('-5%'),
     marginBottom: 45,
     width: '95%',
   },
@@ -137,14 +143,14 @@ const styles = StyleSheet.create({
   },
   botton: {
     width: '65%',
-    height: 50,
+    height: 55,
     borderRadius: 8,
-    top: -50,
+    top: hp('-5%'),
     backgroundColor: '#DF2828',
   },
   bottonText: {
     fontSize: 20,
-    top: 10,
+    top: 12,
     fontWeight: 'bold',
     alignSelf: 'center',
     color: 'white',
@@ -159,18 +165,7 @@ const styles = StyleSheet.create({
     top: 5,
     color: 'black',
   },
-  signUpTexto: {
-    fontSize: 15,
-    fontFamily: 'Asap',
-    alignSelf: 'flex-end',
-    top: 70,
-    fontWeight: 'bold',
-    textDecorationLine: 'underline',
-    color: '#ff6624',
-  },
   row: {
     flexDirection: 'row',
-    // alignItems: 'center',
-    // justifyContent: 'center',
   },
 });

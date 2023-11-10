@@ -14,6 +14,7 @@ import { Table, TableWrapper, Row, Rows } from 'react-native-table-component';
 import { RNCamera } from 'react-native-camera';
 import ImagePicker from 'react-native-image-crop-picker';
 import TextRecognition from '@react-native-ml-kit/text-recognition';
+import { ScrollView } from 'react-native-gesture-handler';
 
 const Readings = () => {
     const [selected, setSelected] = useState('');
@@ -224,6 +225,7 @@ const Readings = () => {
             >
                 <View style={styles.modalContainer}>
                     <View style={styles.modalContent}>
+                        <ScrollView>
                         <Text style={styles.modalTitle}>Reading Capture</Text>
                         <Text style={styles.subText}>Insert code</Text>
 
@@ -333,6 +335,7 @@ const Readings = () => {
                         <TouchableOpacity style={styles.modalButton} onPress={hideInsertCodeModal}>
                             <Text style={styles.modalButtonText}>Cancel</Text>
                         </TouchableOpacity>
+                        </ScrollView>
                     </View>
                 </View>
             </Modal>
