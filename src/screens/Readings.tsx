@@ -6,7 +6,7 @@ import {
     TouchableOpacity,
     TextInput,
     StyleSheet,
-    Modal, StatusBar, ScrollView, Alert
+    Modal, StatusBar, ScrollView, Alert, TouchableWithoutFeedback
 } from 'react-native';
 import { SelectList } from 'react-native-dropdown-select-list';
 import { Table, TableWrapper, Row, Rows } from 'react-native-table-component';
@@ -28,6 +28,7 @@ const Readings = () => {
     const Tab = createBottomTabNavigator();
 
     StatusBar.setBackgroundColor('#1464f6')
+    const [switchMode, setSwitchMode] = useState('Offline');
     const [selected, setSelected] = useState('');
     const [isEnabled, setIsEnabled] = useState(false);
     const [isModalSaveVisible, setIsModalSaveVisible] = useState(false);
@@ -37,6 +38,8 @@ const Readings = () => {
     const [isQRModalVisible, setIsQRModalVisible] = useState(false);
     const [isModalAdverVisible, setIsModalAdverVisible] = useState(false);
     const [isModalErrorVisible, setIsModalErrorVisible] = useState(false);
+    const [isModalErrorValiVisible, setIsModalErrorValiVisibe] = useState(false);
+    const [isModalConnectionVisible, setIsModalConnectionVisible] = useState(false);
     const [numberClient, setNumberClient] = useState('');
     const [lastCapture, setLastCapture] = useState('');
     const [newCapture, setNewCapture] = useState('');
@@ -72,19 +75,19 @@ const Readings = () => {
 
     const headers = ['Dirección', 'Lectura', 'Interior', 'No. Cliente'];
     const rows = [
-        ['CONDOMINIO AZTECA TORRE A 01', ' ', '01', '424'],
-        ['CONDOMINIO AZTECA TORRE A 02', ' ', '02', '425'],
-        ['CONDOMINIO AZTECA TORRE A 03', ' ', '03', '426'],
-        ['CONDOMINIO AZTECA TORRE A 04', ' ', '05', '427'],
-        ['CONDOMINIO AZTECA TORRE A 04', ' ', '05', '427'],
-        ['CONDOMINIO AZTECA TORRE A 04', ' ', '05', '427'],
-        ['CONDOMINIO AZTECA TORRE A 04', ' ', '05', '427'],
-        ['CONDOMINIO AZTECA TORRE A 04', ' ', '05', '427'],
-        ['CONDOMINIO AZTECA TORRE A 04', ' ', '05', '427'],
-        ['CONDOMINIO AZTECA TORRE A 04', ' ', '05', '427'],
-        ['CONDOMINIO AZTECA TORRE A 04', ' ', '05', '427'],
-        ['CONDOMINIO AZTECA TORRE A 04', ' ', '05', '427'],
-        ['CONDOMINIO AZTECA TORRE A 04', ' ', '05', '427'],
+        ['CONDOMINIO AZTECA TORRE A 01', '125.25 ', '01', '424'],
+        ['CONDOMINIO AZTECA TORRE A 02', ' 42.26', '02', '425'],
+        ['CONDOMINIO AZTECA TORRE A 03', ' 46.74', '03', '426'],
+        ['CONDOMINIO AZTECA TORRE A 04', ' ', '04', '427'],
+        ['CONDOMINIO AZTECA TORRE A 05', ' ', '05', '428'],
+        ['CONDOMINIO AZTECA TORRE A 06', ' ', '06', '429'],
+        ['CONDOMINIO AZTECA TORRE A 07', ' ', '07', '430'],
+        ['CONDOMINIO AZTECA TORRE A 08', ' ', '08', '431'],
+        ['CONDOMINIO AZTECA TORRE A 09', ' ', '09', '432'],
+        ['CONDOMINIO AZTECA TORRE A 10', ' ', '10', '433'],
+        ['CONDOMINIO AZTECA TORRE A 11', ' ', '11', '434'],
+        ['CONDOMINIO AZTECA TORRE A 12', ' ', '12', '435'],
+        ['CONDOMINIO AZTECA TORRE A 13', ' ', '13', '436'],
 
     ];
 
@@ -99,6 +102,14 @@ const Readings = () => {
         (row) =>
             row[2].includes(filterText) || row[3].includes(filterText)
     );
+
+    const showModalErrorValid = () => {
+        setIsModalErrorValiVisibe(true);
+    }
+
+    const hideModalErrorValid = () => {
+        setIsModalErrorValiVisibe(false);
+    }
 
     const showModal = () => {
         setIsModalVisible(true);
@@ -138,13 +149,107 @@ const Readings = () => {
     const hideQRModal = () => {
         setIsQRModalVisible(false);
     }
+    const showModalConnectionVisible = () => {
+        setIsModalConnectionVisible(true);
+
+    }
+    const hideModalConnectionVisible = () => {
+        setIsModalConnectionVisible(false);
+    }
     const openCamera = () => {
         setIsCameraOpen(true);
     };
+
+
+    function openInsertCodeModalWithData(data: string[]) {
+        // Verifica si rowData tiene cuatro elementos antes de desestructurarlo
+        if (data.length === 4) {
+            const [Dirección, lectura, interior, noCliente] = data;
+            setAddress(Dirección);
+            setNewCapture(lectura);
+            setInterior(interior);
+            setNumberClient(noCliente);
+            setIsInsertCodeModalVisible(true);
+        }
+    }
+
+
+
+    const checkInternetConnection = () => {
+        NetInfo.fetch().then((state) => {
+            if (state.isConnected) {
+                // Si hay conexión a Internet, mostrar la alerta de éxito
+                Alert.alert("Éxito", "Conexión a Internet disponible");
+            } else {
+                // Si no hay conexión a Internet, mostrar el modal de error
+                showErrorModal();
+            }
+        });
+    };
+
+
+
     const cancelOnlineMode = () => {
         setIsEnabled(false)
-        hideModalAdver()
     }
+
+
+    const checkconnectionSave = () => {
+        //Comprobamos si tiene habilitado el modo online
+        if (isEnabled === true) {
+            //Si esta activado el modo online comprueba la conexión cada vez que se guarde
+            NetInfo.fetch().then((state) => {
+                if (state.isConnected) {
+                    //Si detecta que hay conexión mandara los datos al servidor
+                    //Y se mostrara el mensaje de éxito
+                    showModalSave()
+                } else {
+                    // Si no hay conexión a Internet, mostrar el modal de error
+                    //A demás de desactivar el modo online
+                    //Se podría agregar una advertencia que se desactivo el modo online
+
+                    showErrorModal();
+                    setSwitchMode("Offline");
+                    cancelOnlineMode();
+                }
+            });
+        }
+        else {
+            //En dado caso se encuentre en el modo offline se añadira la logica de guardar en 
+            //SQlite
+
+            showModalSave()
+        }
+
+    }
+    const checkconnectionSwitch = () => {
+
+        if (isEnabled === true) {
+            setSwitchMode("Offline");
+
+            //Añadir despues las funciones para que todo se almacene en la base de datos local
+        }
+        else {
+            NetInfo.fetch().then((state) => {
+                if (state.isConnected) {
+                    // Si hay conexión a Internet, mostrar la alerta de éxito
+                    setIsModalConnectionVisible(true);
+                    setSwitchMode("Online")
+                    //Se podría añadir otra función para empezar a registrar todo directo a la API e ignorar la tabla local.
+                } else {
+                    // Si no hay conexión a Internet, mostrar el modal de error
+                    showErrorModal();
+                    cancelOnlineMode();
+                }
+            });
+
+
+
+        }
+
+    }
+
+
 
     function scanNumberClient(numberClient: any) {
         setNumberClient(numberClient)
@@ -153,6 +258,23 @@ const Readings = () => {
 
     }
 
+    function NumberClientvalidation() {
+        if (numberClient === "") {
+            setIsModalErrorValiVisibe(true);
+        }
+        else {
+            Alert.alert("Éxito")
+        }
+    }
+
+    function RegisterValidation() {
+        if (newCapture === "" || numberClient === "" || lastCapture === "") {
+            setIsModalErrorValiVisibe(true)
+        }
+        else {
+
+        }
+    }
     const takePicture = async () => {
         if (cameraRef.current) {
             try {
@@ -199,6 +321,9 @@ const Readings = () => {
     return (
         <View style={styles.container}>
 
+            {/*<Text style={styles.Title}>Captura de Lecturas</Text> */}
+
+
             {/* 
             <View style={styles.pendingsContainer}>
                 <TouchableOpacity style={styles.buttonPendings}>
@@ -222,11 +347,11 @@ const Readings = () => {
                 <Switch
                     value={isEnabled}
                     onValueChange={setIsEnabled}
-                    trackColor={{ false: 'red', true: 'green' }}
+                    trackColor={{ false: '#DF2828', true: 'green' }}
 
-                    onChange={showModalAdver}
+                    onChange={checkconnectionSwitch}
                 />
-                <Text style={styles.switchText}>Offline</Text>
+                <Text style={styles.switchText}>{switchMode}</Text>
                 {/* <TouchableOpacity style={styles.buttonCapture} onPress={showModal}>
                     <Text style={styles.buttonTextCapture}>Capturar</Text>
                 </TouchableOpacity>*/}
@@ -242,6 +367,7 @@ const Readings = () => {
                         backgroundColor: 'white',
                         width: "100%",
                         position: 'absolute',
+                        marginEnd:100,
                         top: 50,
                         zIndex: 1,
                     }}
@@ -276,30 +402,43 @@ const Readings = () => {
 
 
 
-            <Table borderStyle={{ borderWidth: 1, borderColor: "#cccccc", marginTop: 20 }}>
-                <Row
-                    data={headers}
-                    style={{
-                        backgroundColor: '#c0c0c0',
-                    }}
-                    height={40}
-                    flexArr={[1, 1, 1, 1, 1]}
-                    textStyle={{ textAlign: 'center', color: 'black', fontWeight: "bold" }}
-                />
-
-            </Table>
-            <ScrollView >
-
-                <Table style={{ marginBottom: 40 }} borderStyle={{ borderWidth: 1, borderColor: "#cccccc" }}>
-                    <TableWrapper>
-                        <Rows
-                            data={filteredRows}
-
-                            textStyle={{ color: 'black', textAlign: 'center', fontSize: 11 }}
-                        />
-                    </TableWrapper>
+            <View style={{ margin: 10, maxHeight: 400 }}>
+                <Table style={{ alignSelf: 'center' }} borderStyle={{borderWidth: 6, borderColor: "#cccccc" }}>
+                    <Row
+                        data={headers}
+                        style={{
+                            backgroundColor: '#c0c0c0',
+                        }}
+                        height={60}
+                        widthArr={[120, 75, 60, 60]}
+                        textStyle={{ textAlign: 'center', color: 'black', fontWeight: 'bold' }}
+                    />
                 </Table>
-            </ScrollView>
+
+                <ScrollView>
+                    <Table style={{ alignSelf: 'center' }} borderStyle={{ borderWidth: 3, borderColor: "#cccccc",borderEndColor:"#ccccc"}}>
+                        <TableWrapper>
+                       
+                            {filteredRows.map((rowData, rowIndex) => (
+                                <TouchableOpacity key={rowIndex} onPress={() => openInsertCodeModalWithData(rowData)}>
+                                         <View style={styles.rowContainer}>
+                                        <Row
+                                            data={rowData}
+                                            widthArr={[120, 75, 60, 60]}
+                                            style={{ height: 50 }}
+                                            textStyle={{ color: 'black', textAlign: 'center', fontSize: 13 }}
+                                        />
+                                        </View>
+                                </TouchableOpacity>
+                              
+                            ))}
+                             
+                        </TableWrapper>
+                    </Table>
+                </ScrollView>
+            </View>
+
+
 
             <Modal
                 transparent={true}
@@ -307,17 +446,19 @@ const Readings = () => {
                 visible={isModalVisible}
                 onRequestClose={hideModal}
             >
-                <View style={styles.modalContainer}>
-                    <View style={styles.modalContent}>
-                        <Text style={styles.modalTitle}>Captura de Lectura</Text>
-                        <TouchableOpacity style={styles.modalButton} onPress={showQRModal}>
-                            <Text style={styles.modalButtonText}>Escanear QR</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity style={styles.modalButton} onPress={showInsertCodeModal}>
-                            <Text style={styles.modalButtonText}>Insertar Codigo</Text>
-                        </TouchableOpacity>
+                <TouchableWithoutFeedback onPress={hideModal}>
+                    <View style={styles.modalContainer}>
+                        <View style={styles.modalContent}>
+                            <Text style={styles.modalTitle}>Captura de Lectura</Text>
+                            <TouchableOpacity style={styles.modalButton} onPress={showQRModal}>
+                                <Text style={styles.modalButtonText}>Escanear QR</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity style={styles.modalButton} onPress={showInsertCodeModal}>
+                                <Text style={styles.modalButtonText}>Insertar Codigo</Text>
+                            </TouchableOpacity>
+                        </View>
                     </View>
-                </View>
+                </TouchableWithoutFeedback>
             </Modal>
 
 
@@ -348,7 +489,7 @@ const Readings = () => {
                                     onChangeText={text => setNumberClient(text)}
                                 />
 
-                                <TouchableOpacity style={styles.modalButtonB}>
+                                <TouchableOpacity style={styles.modalButtonB} onPress={NumberClientvalidation}>
                                     <Image
                                         source={require('../../img/search.png')}
                                         style={{ marginStart: 5, width: 50, height: 50, alignSelf: 'center', alignContent: 'center', alignItems: 'center' }}
@@ -376,12 +517,12 @@ const Readings = () => {
                                     onChangeText={text => setNewCapture(text)}
                                 />
                                 <TouchableOpacity style={styles.modalButtonB} onPress={openCamera}>
-                                <Image
-                                    source={require('../../img/camera.png')}
-                                    style={{ marginStart: 9, width: 50, height: 50, alignSelf: 'center' }}
-                                    resizeMode="contain"
-                                />
-                            </TouchableOpacity>
+                                    <Image
+                                        source={require('../../img/camera.png')}
+                                        style={{ marginStart: 9, width: 50, height: 50, alignSelf: 'center' }}
+                                        resizeMode="contain"
+                                    />
+                                </TouchableOpacity>
                             </View>
 
                             <Text style={styles.subText}>Diferencia</Text>
@@ -438,7 +579,7 @@ const Readings = () => {
                                 onChangeText={(text) => setDebt(text)}
                             />
 
-                            <TouchableOpacity style={styles.modalButton} onPress={showModalSave}>
+                            <TouchableOpacity style={styles.modalButton} onPress={checkconnectionSave}>
                                 <Text style={styles.modalButtonText}>Guardar</Text>
                             </TouchableOpacity>
 
@@ -452,6 +593,7 @@ const Readings = () => {
 
             </Modal>
 
+            {/*Modal de captura del medidor */}
             <Modal
                 transparent={true}
                 animationType='slide'
@@ -482,69 +624,75 @@ const Readings = () => {
 
             {/*Modal de guardado con éxito */}
             <Modal transparent={true} animationType='slide' visible={isModalSaveVisible}>
-                <View style={styles.modalContainer}>
-                    <View style={styles.modalContent}>
+                <TouchableWithoutFeedback onPress={hideModalSave}>
+                    <View style={styles.modalContainer}>
+                        <View style={styles.modalContent}>
 
-                        <Text style={styles.modalTitle}>Captura de Lectura</Text>
+                            <Text style={styles.modalTitle}>Captura de Lectura</Text>
 
-                        <View style={styles.ImageContent}>
-                            <Image resizeMode='contain' style={styles.ModalImage} source={require('../../img/checkGreen.png')} />
+                            <View style={styles.ImageContent}>
+                                <Image resizeMode='contain' style={styles.ModalImage} source={require('../../img/checkGreen.png')} />
 
+                            </View>
+
+
+                            <Text style={styles.modalTitle}>Guardado con éxito</Text>
+                            <TouchableOpacity style={styles.modalButton} onPress={hideModalSave}>
+                                <Text style={styles.modalButtonText}>Entendido</Text>
+                            </TouchableOpacity>
                         </View>
-
-
-                        <Text style={styles.modalTitle}>Guardado con éxito</Text>
-                        <TouchableOpacity style={styles.modalButton} onPress={hideModalSave}>
-                            <Text style={styles.modalButtonText}>Entendido</Text>
-                        </TouchableOpacity>
                     </View>
-                </View>
+                </TouchableWithoutFeedback>
             </Modal>
 
 
             {/*Modal de Error */}
             <Modal transparent={true} animationType='slide' visible={isModalErrorVisible}>
-                <View style={styles.modalContainer}>
-                    <View style={styles.modalContent}>
-                        <Text style={styles.modalTitle}>ERROR</Text>
+                <TouchableWithoutFeedback onPress={hideErrorModal}>
+                    <View style={styles.modalContainer}>
+                        <View style={styles.modalContent}>
+                            <Text style={styles.modalTitle}>ERROR</Text>
 
-                        <View style={styles.ImageContent}>
-                            <Image style={styles.ModalImage} source={require('../../img/error.png')} />
+                            <View style={styles.ImageContent}>
+                                <Image style={styles.ModalImage} source={require('../../img/error.png')} />
+                            </View>
+                            <Text style={styles.subTextB}>No tienes conexión a internet</Text>
+                            <TouchableOpacity style={styles.modalButton} onPress={hideErrorModal}>
+                                <Text style={styles.modalButtonText}>Entendido</Text>
+                            </TouchableOpacity>
+
                         </View>
-                        <Text style={styles.subTextB}>No tienes conexión a internet</Text>
-                        <TouchableOpacity style={styles.modalButton} onPress={hideErrorModal}>
-                            <Text style={styles.modalButtonText}>Entendido</Text>
-                        </TouchableOpacity>
-
                     </View>
-                </View>
+                </TouchableWithoutFeedback>
             </Modal>
 
             {/*Modal de advertencia*/}
             <Modal transparent={true} animationType='slide' visible={isModalAdverVisible}>
-                <View style={styles.modalContainer}>
-                    <View style={styles.modalContent}>
-                        <Text style={styles.modalTitle}>Advertencia</Text>
-                        <View style={styles.ImageContent}>
-                            <Image resizeMode='contain' style={styles.ModalImage} source={require('../../img/advertencia.png')} />
+                <TouchableWithoutFeedback onPress={hideModalAdver}>
+                    <View style={styles.modalContainer}>
+                        <View style={styles.modalContent}>
+                            <Text style={styles.modalTitle}>Advertencia</Text>
+                            <View style={styles.ImageContent}>
+                                <Image resizeMode='contain' style={styles.ModalImage} source={require('../../img/advertencia.png')} />
+
+                            </View>
+                            <Text style={styles.modalTitle}>¿Estas seguro?</Text>
+
+                            <Text style={styles.subTextB}>Todas las capturas realizadas en modo offline seran enviadas</Text>
+
+                            <View style={styles.ButtonContentModal}>
+                                <TouchableOpacity style={styles.modalButtonC} onPress={checkInternetConnection}>
+                                    <Text style={styles.modalButtonText} >Si</Text>
+                                </TouchableOpacity>
+                                <TouchableOpacity style={styles.modalButtonC} onPress={hideModalAdver} >
+                                    <Text style={styles.modalButtonText} >Cancelar</Text>
+                                </TouchableOpacity>
+                            </View>
+
 
                         </View>
-                        <Text style={styles.modalTitle}>¿Estas seguro?</Text>
-
-                        <Text style={styles.subTextB}>Todas las capturas realizadas en modo offline seran enviadas</Text>
-
-                        <View style={styles.ButtonContentModal}>
-                            <TouchableOpacity style={styles.modalButtonC} onPress={showErrorModal}>
-                                <Text style={styles.modalButtonText} >Si</Text>
-                            </TouchableOpacity>
-                            <TouchableOpacity style={styles.modalButtonC} onPress={cancelOnlineMode} >
-                                <Text style={styles.modalButtonText} >Cancelar</Text>
-                            </TouchableOpacity>
-                        </View>
-
-
                     </View>
-                </View>
+                </TouchableWithoutFeedback>
             </Modal>
 
 
@@ -566,13 +714,51 @@ const Readings = () => {
                 </View>
             </Modal>
 
-            <View style={styles.bottomNav}>
+
+            <Modal transparent={true} animationType='slide' visible={isModalConnectionVisible}>
+                <View style={styles.modalContainer}>
+                    <View style={styles.modalContent}>
+                        <Text>Éxito</Text>
+                        <View style={styles.ImageContent}>
+                            <Image style={styles.ModalImage} source={require('../../img/checkGreen.png')} />
+                        </View>
+                        <Text style={styles.subTextB}>Se ha activado éxitosamente el modo Online</Text>
+                        <TouchableOpacity style={styles.modalButton} onPress={hideModalConnectionVisible}>
+                            <Text style={styles.modalButtonText}>Entendido</Text>
+                        </TouchableOpacity>
+                    </View>
+
+                </View>
+            </Modal>
+
+
+            {/*Modal de error de validaciones */}
+            <Modal transparent={true} animationType='slide' visible={isModalErrorValiVisible}>
+                <View style={styles.modalContainer}>
+                    <View style={styles.modalContent}>
+                        <Text style={styles.modalTitle}>ERROR</Text>
+
+                        <View style={styles.ImageContent}>
+                            <Image style={styles.ModalImage} source={require('../../img/error.png')} />
+                        </View>
+
+                        <Text style={styles.subTextB}>No deje campos vacíos</Text>
+
+                        <TouchableOpacity style={styles.modalButton} onPress={hideModalErrorValid}>
+                            <Text style={styles.modalButtonText}>Ok</Text>
+                        </TouchableOpacity>
+                    </View>
+                </View>
+
+            </Modal>
+
+            {/*Bottom Navigation */}
+            <View style={{ position: 'absolute', left: 0, right: 0, bottom: 0 }}>
                 <Tab.Navigator>
                     <Tab.Screen
                         name='Captura'
-
-                        listeners={({ navigation }) => ({ tabPress: (e) => { e.preventDefault(); showModal(); } })}
                         component={LoginScreen}
+                        listeners={({ navigation }) => ({ tabPress: (e) => { e.preventDefault(); showModal(); } })}
                         options={{
                             tabBarActiveTintColor: "#133E85",
                             tabBarInactiveTintColor: "#133E85",
@@ -592,7 +778,6 @@ const Readings = () => {
                         options={{
                             tabBarLabelStyle: { fontSize: 15, fontWeight: "bold" },
                             tabBarInactiveTintColor: "#133E85",
-
                             tabBarIcon: ({ color, size }) => (
                                 <Image
                                     source={require('../../img/save.png')}
@@ -608,6 +793,12 @@ const Readings = () => {
     );
 };
 const styles = StyleSheet.create({
+    rowContainer: {
+        borderBottomWidth: 3,
+        borderEndColor:"#cccccc",
+        borderEndWidth:3,
+        borderBottomColor: "#cccccc",
+    },
     container: {
         width: "100%",
         height: "100%",
@@ -634,8 +825,10 @@ const styles = StyleSheet.create({
         height: 55,
     },
     selectSwitchContainer: {
-
-        width: "100%"
+        alignContent:"center",
+        alignSelf:"center",
+        width: "90%",
+        
     },
     switchContainer: {
 
@@ -644,6 +837,7 @@ const styles = StyleSheet.create({
         width: "100%",
         justifyContent: "center",
         alignSelf: "center",
+        marginTop:50,
     },
     pendingsContainer: {
         flexDirection: "row",
@@ -682,7 +876,8 @@ const styles = StyleSheet.create({
     },
     filterInput: {
         fontSize: 15,
-        width: "100%",
+        width: "90%",
+        alignSelf:"center",
         height: 55,
         color: "black",
         marginTop: 6,
@@ -693,6 +888,7 @@ const styles = StyleSheet.create({
     filterContainer: {
         flexDirection: "row",
         alignItems: "center",
+        alignSelf:"center",
         justifyContent: "space-between",
         height: 55,
         marginBottom: 20,
