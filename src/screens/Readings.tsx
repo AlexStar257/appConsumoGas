@@ -9,7 +9,7 @@ import {
     Modal, StatusBar, ScrollView, Alert, TouchableWithoutFeedback
 } from 'react-native';
 import { SelectList } from 'react-native-dropdown-select-list';
-import { Table, TableWrapper, Row, Rows } from 'react-native-table-component';
+import { Table, TableWrapper, Row, Rows, Cell } from 'react-native-table-component';
 import { RNCamera } from 'react-native-camera';
 import ImagePicker from 'react-native-image-crop-picker';
 import TextRecognition from '@react-native-ml-kit/text-recognition';
@@ -52,6 +52,7 @@ const Readings = () => {
     const [lectura, setLectura] = useState('lectura');
     const [isSelectedChecBox, setSelectionCheckBox] = useState(false);
     const cameraRef = useRef(null);
+    const [isfacturasVencidasVisible, setIsfacturasVencidasVisible] = useState(false);
     const [isCameraOpen, setIsCameraOpen] = useState(false);
     const [capturedImageURI, setCapturedImageURI] = useState<string | null>(null);
 
@@ -62,6 +63,12 @@ const Readings = () => {
     }
     const [state, setState] = useState(initialState);
 
+    const headersWidth = [
+        { name: 'Columna 1', width: 120 },
+        { name: 'Columna 2', width: 75 },
+        { name: 'Columna 3', width: 60 },
+        { name: 'Columna 4', width: 60 }
+    ];
 
 
 
@@ -72,6 +79,8 @@ const Readings = () => {
         { key: '4', value: 'CONDOMINIO LA CANTERA TORRE B' },
         { key: '5', value: 'PUNTO CENTRAL TORRE 1' },
     ];
+    const debtHeaders = ['Factura', 'Monto'];
+    const debData = [['SARED1234', "124.4"], ['SARED4321', '435.40']];
 
     const headers = ['Dirección', 'Lectura', 'Interior', 'No. Cliente'];
     const rows = [
@@ -164,11 +173,12 @@ const Readings = () => {
     function openInsertCodeModalWithData(data: string[]) {
         // Verifica si rowData tiene cuatro elementos antes de desestructurarlo
         if (data.length === 4) {
-            const [Dirección, lectura, interior, noCliente] = data;
-            setAddress(Dirección);
+            const [Direccion, lectura, interior, noCliente] = data;
+            setAddress(Direccion);
             setNewCapture(lectura);
             setInterior(interior);
             setNumberClient(noCliente);
+            setComplex(Direccion);
             setIsInsertCodeModalVisible(true);
         }
     }
@@ -367,7 +377,7 @@ const Readings = () => {
                         backgroundColor: 'white',
                         width: "100%",
                         position: 'absolute',
-                        marginEnd:100,
+                        marginEnd: 100,
                         top: 50,
                         zIndex: 1,
                     }}
@@ -403,39 +413,42 @@ const Readings = () => {
 
 
             <View style={{ margin: 10, maxHeight: 400 }}>
-                <Table style={{ alignSelf: 'center' }} borderStyle={{borderWidth: 6, borderColor: "#cccccc" }}>
+                <Table style={{ alignSelf: 'center' }} borderStyle={{ borderWidth: 1, borderColor: "#cccccc" }}>
                     <Row
                         data={headers}
                         style={{
-                            backgroundColor: '#c0c0c0',
+                            backgroundColor: '#DF2828',
                         }}
+
                         height={60}
                         widthArr={[120, 75, 60, 60]}
-                        textStyle={{ textAlign: 'center', color: 'black', fontWeight: 'bold' }}
+                        textStyle={{ textAlign: 'center', color: 'white', fontWeight: 'bold' }}
                     />
                 </Table>
 
                 <ScrollView>
-                    <Table style={{ alignSelf: 'center' }} borderStyle={{ borderWidth: 3, borderColor: "#cccccc",borderEndColor:"#ccccc"}}>
+                    <Table style={{ alignSelf: 'center' }} borderStyle={{ borderWidth: 1, borderColor: "#cccccc" }}>
                         <TableWrapper>
-                       
                             {filteredRows.map((rowData, rowIndex) => (
-                                <TouchableOpacity key={rowIndex} onPress={() => openInsertCodeModalWithData(rowData)}>
-                                         <View style={styles.rowContainer}>
-                                        <Row
-                                            data={rowData}
-                                            widthArr={[120, 75, 60, 60]}
-                                            style={{ height: 50 }}
-                                            textStyle={{ color: 'black', textAlign: 'center', fontSize: 13 }}
-                                        />
-                                        </View>
+                                <TouchableOpacity key={rowIndex} onPress={() => openInsertCodeModalWithData(rowData)} style={{}}>
+                                    <TableWrapper style={{ flexDirection: 'row', borderColor: "#cccccc", borderBottomWidth: 1 }}>
+                                        {rowData.map((cellData, cellIndex) => (
+                                            <Cell
+                                                key={cellIndex}
+                                                data={cellData}
+                                                width={headersWidth[cellIndex].width}
+                                                style={{ height: 50, borderRightWidth: 1, borderColor: "#cccccc" }}
+                                                textStyle={{ color: 'black', textAlign: 'center', fontSize: 13 }}
+                                            />
+                                        ))}
+                                    </TableWrapper>
                                 </TouchableOpacity>
-                              
                             ))}
-                             
                         </TableWrapper>
                     </Table>
                 </ScrollView>
+
+
             </View>
 
 
@@ -578,7 +591,29 @@ const Readings = () => {
 
                                 onChangeText={(text) => setDebt(text)}
                             />
+                            <Text style={styles.modalTitle}>Facturas vencidas</Text>
+                            <Table style={{ alignSelf: 'center' ,marginTop:10}} borderStyle={{ borderWidth: 1, borderColor: "#cccccc" }}>
+                                <Row
+                                    data={debtHeaders}
+                                    style={{
+                                        backgroundColor: '#DF2828',
+                                    }}
 
+                                    height={60}
+                                    widthArr={[120, 70]}
+                                    textStyle={{ textAlign: 'center', color: 'white', fontWeight: 'bold' }}
+                                />
+                            </Table>
+                            <Table style={{ alignSelf: "center",marginBottom:10 }} borderStyle={{ borderWidth: 1, borderColor: "#cccccc" }}>
+                                <TableWrapper style={{ flexDirection: 'row', borderColor: "#cccccc", borderBottomWidth: 1 }}>
+                                    <Rows
+                                        data={debData}
+                                        textStyle={{ color: 'black', textAlign: 'center', fontSize: 15 }}
+                                        widthArr={[120, 70]}
+                                        style={{height:40}} />
+
+                                </TableWrapper>
+                            </Table>
                             <TouchableOpacity style={styles.modalButton} onPress={checkconnectionSave}>
                                 <Text style={styles.modalButtonText}>Guardar</Text>
                             </TouchableOpacity>
@@ -592,6 +627,8 @@ const Readings = () => {
                 </View>
 
             </Modal>
+
+            
 
             {/*Modal de captura del medidor */}
             <Modal
@@ -794,9 +831,10 @@ const Readings = () => {
 };
 const styles = StyleSheet.create({
     rowContainer: {
-        borderBottomWidth: 3,
-        borderEndColor:"#cccccc",
-        borderEndWidth:3,
+        borderBottomWidth: 1,
+        borderEndColor: "#cccccc",
+        borderEndWidth: 1,
+
         borderBottomColor: "#cccccc",
     },
     container: {
@@ -825,10 +863,10 @@ const styles = StyleSheet.create({
         height: 55,
     },
     selectSwitchContainer: {
-        alignContent:"center",
-        alignSelf:"center",
+        alignContent: "center",
+        alignSelf: "center",
         width: "90%",
-        
+
     },
     switchContainer: {
 
@@ -837,7 +875,7 @@ const styles = StyleSheet.create({
         width: "100%",
         justifyContent: "center",
         alignSelf: "center",
-        marginTop:50,
+        marginTop: 50,
     },
     pendingsContainer: {
         flexDirection: "row",
@@ -877,7 +915,7 @@ const styles = StyleSheet.create({
     filterInput: {
         fontSize: 15,
         width: "90%",
-        alignSelf:"center",
+        alignSelf: "center",
         height: 55,
         color: "black",
         marginTop: 6,
@@ -888,7 +926,7 @@ const styles = StyleSheet.create({
     filterContainer: {
         flexDirection: "row",
         alignItems: "center",
-        alignSelf:"center",
+        alignSelf: "center",
         justifyContent: "space-between",
         height: 55,
         marginBottom: 20,
