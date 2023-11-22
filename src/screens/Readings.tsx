@@ -9,11 +9,11 @@ import {
     Modal, StatusBar, ScrollView, Alert, TouchableWithoutFeedback
 } from 'react-native';
 import { SelectList } from 'react-native-dropdown-select-list';
-import { Table, TableWrapper, Row, Rows, Cell } from 'react-native-table-component';
-import { RNCamera } from 'react-native-camera';
+  import { RNCamera } from 'react-native-camera';
 import ImagePicker from 'react-native-image-crop-picker';
 import TextRecognition from '@react-native-ml-kit/text-recognition';
 import { LogBox } from 'react-native';
+import { Table, Row, Rows, TableWrapper, Cell } from 'react-native-table-component';
 import { ViewProps } from 'react-native';
 import { Button, Image } from 'react-native-elements';
 import CheckBox from '@react-native-community/checkbox';
@@ -108,8 +108,9 @@ const Readings = () => {
     };
 
     const filteredRows = rows.filter(
+        
         (row) =>
-            row[2].includes(filterText) || row[3].includes(filterText)
+            row[0].includes(filterText.toUpperCase()) ||row[2].includes(filterText) || row[3].includes(filterText)
     );
 
     const showModalErrorValid = () => {
@@ -330,8 +331,9 @@ const Readings = () => {
 
     return (
         <View style={styles.container}>
+            
 
-            {/*<Text style={styles.Title}>Captura de Lecturas</Text> */}
+            <Text style={styles.Title}>Lecturas</Text> 
 
 
             {/* 
@@ -830,6 +832,12 @@ const Readings = () => {
     );
 };
 const styles = StyleSheet.create({
+    header: {
+        fontSize: 24,
+        fontWeight: 'bold',
+        marginBottom: 16,
+        color: '#333',
+      },
     rowContainer: {
         borderBottomWidth: 1,
         borderEndColor: "#cccccc",
