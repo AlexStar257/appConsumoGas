@@ -22,6 +22,9 @@ import QRCodeScanner from 'react-native-qrcode-scanner';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { LoginScreen } from './LoginScreen';
 
+
+
+
 const Readings = () => {
     LogBox.ignoreAllLogs();
     LogBox.ignoreLogs(['ViewPropTypes']);
@@ -213,7 +216,7 @@ const Readings = () => {
                 if (state.isConnected) {
                     //Si detecta que hay conexión mandara los datos al servidor
                     //Y se mostrara el mensaje de éxito
-                    showModalSave()
+                    RegisterValidation();
                 } else {
                     // Si no hay conexión a Internet, mostrar el modal de error
                     //A demás de desactivar el modo online
@@ -226,10 +229,10 @@ const Readings = () => {
             });
         }
         else {
-            //En dado caso se encuentre en el modo offline se añadira la logica de guardar en 
+            //En dado caso se encuentre en el  modo offline se añadira la logica de guardar en 
             //SQlite
 
-            showModalSave()
+            RegisterValidation();
         }
 
     }
@@ -279,11 +282,11 @@ const Readings = () => {
     }
 
     function RegisterValidation() {
-        if (newCapture === "" || numberClient === "" || lastCapture === "") {
+        if (newCapture === "" || numberClient === "") {
             setIsModalErrorValiVisibe(true)
         }
         else {
-
+                showModalSave();
         }
     }
     const takePicture = async () => {
@@ -527,9 +530,11 @@ const Readings = () => {
                                 <TextInput
                                     style={styles.modalInputB}
                                     placeholder="Nueva captura"
-                                    placeholderTextColor={"#cccccc"}
+                                    placeholderTextColor={"black"}
                                     value={newCapture}
                                     onChangeText={text => setNewCapture(text)}
+                                    keyboardType='numeric'
+
                                 />
                                 <TouchableOpacity style={styles.modalButtonB} onPress={openCamera}>
                                     <Image
